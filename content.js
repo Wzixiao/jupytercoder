@@ -162,6 +162,8 @@ function insertSuggestion(suggestion) {
   // Trigger a keydown event with Tab key to perform auto-indentation
   const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
   activeRequestTextarea.dispatchEvent(tabEvent);
+
+  codeToFill = ""
 }
 
 
@@ -374,25 +376,32 @@ const startWaitingAnimation = (activeCell) => {
 }
 
 
+// Simulate the user pressing the back key
+const pressBackKey = ()=>{
+  // get active textarea
+  const activeTextarea = document.activeElement;
+
+  // create a keyboardEvent boject
+  const keyboardEvent = new KeyboardEvent('keydown', { 'keyCode': 8 });
+
+  // trigger keyboardEvent boject
+  activeTextarea.dispatchEvent(keyboardEvent);
+}
+
 // Adds an event listener for filling in code after the request is completed
 const addFillCodeKeyListener = (event) => {
-  if (event.ctrlKey && !isRequestInProgress && isRequestSuccessful) {
+  if (event.code == "Enter" && !isRequestInProgress && isRequestSuccessful) {
     event.preventDefault();
 
-    // Get the previously existing animated text element (if any)
-    // If it doesn't exist, it's assumed that the user doesn't need the code
-    const animationElementList = document.querySelectorAll(".per-insert-code");
-
     // If the animated text element exists, it's assumed that the user wants to insert the code into the code block
-    if (animationElementList.length === 1) {
-      // delete animation element
-      animationElementList[0].remove()
-
+    if (codeToFill) {
+      pressBackKey()
       insertSuggestion(codeToFill);
     }
 
     // Reset the request successful flag
     isRequestSuccessful = false;
+    return false;
   }
 };
 
